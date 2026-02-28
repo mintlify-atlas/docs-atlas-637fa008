@@ -1,0 +1,93 @@
+{
+  "projectType": "frontend",
+  "projectName": "Typing Test",
+  "projectDescription": "A modern, customizable typing speed test application built with React, Redux, and TypeScript.",
+  "theme": "palm",
+  "primaryColor": "#da0037",
+  "lightColor": "#ff8503",
+  "darkColor": "#171717",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/customization",
+              "guides/keyboard-shortcuts",
+              "guides/contributing"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/typing-test",
+              "features/themes",
+              "features/wordlists",
+              "features/results"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Components",
+            "pages": [
+              "reference/components/overview",
+              "reference/components/header",
+              "reference/components/test",
+              "reference/components/result",
+              "reference/components/command-pallet",
+              "reference/components/footer"
+            ]
+          },
+          {
+            "group": "State Management",
+            "pages": [
+              "reference/state/store",
+              "reference/state/actions",
+              "reference/state/reducers"
+            ]
+          },
+          {
+            "group": "Utilities",
+            "pages": [
+              "reference/utilities/helpers"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Real-time typing speed test with WPM calculation",
+    "15+ customizable color themes",
+    "Multiple word lists including programming languages",
+    "Command palette (Ctrl+K) for quick settings access",
+    "Accuracy tracking with character-level feedback",
+    "LocalStorage persistence for user preferences"
+  ],
+  "publicApiSurface": [
+    "App (main component)",
+    "Header (options: time, theme, type)",
+    "Test (typing interface)",
+    "Result (WPM display and statistics)",
+    "CommandPallet (Ctrl+K navigation)",
+    "Footer (footer component)",
+    "State interface (preferences, word, time)",
+    "Redux actions (setTheme, setTime, setType, setWordList, etc.)",
+    "Reducers (timerReducer, wordReducer, preferenceReducer)",
+    "Helper functions (recordTest, resetTest, startTimer)"
+  ]
+}
