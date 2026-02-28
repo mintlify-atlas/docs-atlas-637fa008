@@ -1,0 +1,83 @@
+---
+title: Component architecture
+description: Overview of the React component structure in the typing test application
+---
+
+The typing test application is built with React, Redux, and TypeScript, featuring a modular component architecture that separates concerns between UI presentation, state management, and user interaction.
+
+## Component structure
+
+The application consists of five main components:
+
+- **Header** - Configuration interface for test parameters (time, theme, type)
+- **Test** - Main typing test interface with word display and caret tracking
+- **Result** - Test results display with WPM calculation and statistics
+- **CommandPallet** - Keyboard-driven command interface for quick settings access
+- **Footer** - Application footer with keyboard hints and contributor information
+
+## State management
+
+All components use Redux for state management through the `react-redux` hooks:
+
+- `useSelector` - Access Redux state
+- `useDispatch` - Dispatch actions to update state
+
+The global state is typed with TypeScript using the `State` interface from `store/reducer`.
+
+## Common patterns
+
+### Redux integration
+
+Components access state and dispatch actions:
+
+```typescript
+import { useDispatch, useSelector } from "react-redux";
+import { State } from "store/reducer";
+
+const { preferences, time } = useSelector((state: State) => state);
+const dispatch = useDispatch();
+```
+
+### Local storage persistence
+
+User preferences are persisted to localStorage:
+
+```typescript
+localStorage.setItem("theme", theme);
+localStorage.setItem("time", `${timeLimit}`);
+localStorage.setItem("type", type);
+```
+
+### Ref management
+
+Components use React refs for DOM manipulation and focus management:
+
+```typescript
+const activeWord = useRef<HTMLDivElement>(null);
+const caretRef = useRef<HTMLSpanElement>(null);
+```
+
+## Styling
+
+Components use a combination of:
+
+- SCSS stylesheets imported per component
+- CSS modules (CommandPallet)
+- Dynamic class application based on state
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Header component" icon="sliders" href="./header">
+    Configuration interface API reference
+  </Card>
+  <Card title="Test component" icon="keyboard" href="./test">
+    Typing test interface API reference
+  </Card>
+  <Card title="Result component" icon="chart-line" href="./result">
+    Results display API reference
+  </Card>
+  <Card title="CommandPallet component" icon="terminal" href="./command-pallet">
+    Command palette API reference
+  </Card>
+</CardGroup>

@@ -1,0 +1,238 @@
+---
+title: Keyboard shortcuts
+description: Complete reference for all keyboard shortcuts and command palette usage in the typing test application
+---
+
+## Overview
+
+The typing test application is designed for keyboard-first interaction. All features can be accessed through keyboard shortcuts, allowing you to practice without interrupting your flow.
+
+## Global shortcuts
+
+These shortcuts work throughout the application:
+
+<CardGroup cols={2}>
+  <Card title="Ctrl + K" icon="command">
+    Open/close the command palette for quick access to all settings
+  </Card>
+  
+  <Card title="Tab" icon="rotate-right">
+    Reset the current test and start over with new words
+  </Card>
+</CardGroup>
+
+<Note>
+  The Tab key only works as a reset when the test is active or after completing a test. It starts a fresh test with the same settings.
+</Note>
+
+## Typing shortcuts
+
+These shortcuts are available during active typing tests:
+
+### Basic typing
+
+| Key | Action |
+|-----|--------|
+| **Any character** | Type the character and advance the cursor |
+| **Space** | Complete the current word and move to the next word |
+| **Backspace** | Delete the previous character |
+| **Ctrl + Backspace** | Delete the entire current word |
+
+### Advanced navigation
+
+<Accordion title="Backspace behavior">
+  The Backspace key has context-aware behavior:
+
+  **Within a word:**
+  - Regular Backspace: Deletes one character at a time
+  - Ctrl + Backspace: Deletes the entire typed word
+
+  **At word start:**
+  - If you haven't typed anything in the current word, Backspace moves back to the previous word
+  - Ctrl + Backspace clears all characters in the previous word
+
+  ```tsx recordTest.ts
+  const handleBackspace = (ctrlKey: boolean) => {
+      if (!typedWord && typedHistory[currIdx] !== wordList[currIdx]) {
+          // Move back to previous word
+          dispatch(backtrackWord(ctrlKey));
+          if (ctrlKey) {
+              // Clear all characters in previous word
+              currWordEl.previousElementSibling!.childNodes.forEach(
+                  (char: HTMLSpanElement) => {
+                      char.classList.remove("wrong", "right");
+                  }
+              );
+          }
+      } else {
+          if (ctrlKey) {
+              // Delete entire current word
+              dispatch(setTypedWord(""));
+          } else {
+              // Delete one character
+              const newTypedWord = typedWord.slice(0, typedWord.length - 1);
+              dispatch(setTypedWord(newTypedWord));
+          }
+      }
+  };
+  ```
+</Accordion>
+
+<Accordion title="Space bar behavior">
+  The Space key advances to the next word only when you've typed at least one character. Pressing Space on an empty word does nothing, preventing accidental skips.
+
+  ```tsx recordTest.ts
+  case " ":
+      if (typedWord === "") return; // Prevent empty word submission
+      currWordEl.classList.add(
+          typedWord !== currWord ? "wrong" : "right"
+      );
+      dispatch(appendTypedHistory());
+      break;
+  ```
+</Accordion>
+
+<Warning>
+  Ctrl (Control) key is used for advanced shortcuts. On macOS, use Cmd (Command) instead of Ctrl where applicable.
+</Warning>
+
+## Command palette
+
+The command palette (Ctrl + K) provides keyboard-driven access to all application settings.
+
+### Using the command palette
+
+<Steps>
+  <Step title="Open the palette">
+    Press **Ctrl + K** to open the command palette. A search interface appears overlaying the typing area.
+  </Step>
+
+  <Step title="Select a category">
+    Type to filter options or use arrow keys to navigate:
+    - **time** - Set test duration
+    - **theme** - Change color theme
+    - **type** - Select wordlist
+
+    Press **Enter** to select a category.
+  </Step>
+
+  <Step title="Choose a value">
+    After selecting a category, available options appear. Navigate with arrow keys and press **Enter** to apply.
+  </Step>
+
+  <Step title="Close the palette">
+    Press **Escape** to close without making changes, or the palette auto-closes after applying a setting.
+  </Step>
+</Steps>
+
+### Command palette shortcuts
+
+While the command palette is open:
+
+| Key | Action |
+|-----|--------|
+| **Arrow Up** | Move selection up in the list |
+| **Arrow Down** | Move selection down in the list |
+| **Enter** | Select the highlighted option |
+| **Escape** | Close the command palette |
+| **Any text** | Filter options by typing |
+
+### Command palette implementation
+
+The command palette uses a two-stage selection process:
+
+```tsx CommandPallet.tsx
+const handlePalletKeys = (e: KeyboardEvent) => {
+    if (e.key === "ArrowUp") {
+        setHighlightedOption((op) => (op > 0 ? op - 1 : op));
+    } else if (e.key === "ArrowDown") {
+        setHighlightedOption((op) =>
+            op < commandList.length - 1 ? op + 1 : op
+        );
+    } else if (e.key === "Enter") {
+        const command = commandList[highlightedOption];
+        handleCommandSelection(command);
+    } else if (e.key === "Escape") {
+        props.setShowPallet(false);
+    }
+    e.stopPropagation();
+};
+```
+
+## Available options
+
+These are the settings you can configure via the command palette:
+
+<AccordionGroup>
+  <Accordion title="Time options">
+    Set the test duration in seconds:
+    - **15** - Quick 15-second sprint
+    - **30** - Half-minute test
+    - **45** - 45-second challenge
+    - **60** - Standard one-minute test
+    - **120** - Extended two-minute test
+  </Accordion>
+
+  <Accordion title="Theme options">
+    Choose from multiple color themes:
+    - **default** - Classic orange and black
+    - **mkbhd** - Red and grey inspired design
+    - **mocha** - Warm brown coffee tones
+    - **coral** - Light coral and pink
+    - **ocean** - Blue ocean theme
+    - **azure** - Soft purple and cream
+    - **forest** - Green forest aesthetic
+    - **rose-milk** - Clean white with red accents
+    - **amethyst** - Purple gemstone colors
+    - **amber** - Warm yellow and orange
+    - **terminal** - Classic terminal green on black
+    - **vscode** - VS Code editor theme
+    - **mountain** - Dark green with gold accents
+    - **pink-sky** - Vibrant purple and pink
+    - **red-season** - Dark red seasonal theme
+  </Accordion>
+
+  <Accordion title="Type options">
+    Select different word and sentence lists:
+    - **words** - Common English words
+    - **hard-words** - Advanced vocabulary
+    - **sentences** - Full sentences for practice
+    - **numbers** - Number typing practice
+    - **got** - Game of Thrones quotes
+    - **javascript** - JavaScript code snippets
+    - **python** - Python code snippets
+  </Accordion>
+</AccordionGroup>
+
+## Keyboard navigation tips
+
+<CardGroup cols={2}>
+  <Card title="Use Tab liberally" icon="rotate">
+    Don't hesitate to press Tab to restart if you make mistakes. It's faster than backspacing through errors.
+  </Card>
+  
+  <Card title="Command palette for speed" icon="bolt">
+    Use Ctrl + K to quickly switch settings without mouse movement, maintaining your typing flow.
+  </Card>
+  
+  <Card title="Learn Ctrl + Backspace" icon="delete-left">
+    Master Ctrl + Backspace to quickly delete entire words when you notice mistakes.
+  </Card>
+  
+  <Card title="Arrow keys in palette" icon="arrows-up-down">
+    Arrow keys provide precise navigation in the command palette when filtering returns multiple results.
+  </Card>
+</CardGroup>
+
+## Accessibility features
+
+The keyboard shortcuts support accessibility:
+
+- **Full keyboard navigation** - No mouse required for any feature
+- **Visual feedback** - Selected options are highlighted with theme colors
+- **Smooth scrolling** - Active words automatically scroll into view
+- **Caret animation** - Blinking caret provides clear position feedback
+
+<Note>
+  All shortcuts are designed to work with standard keyboard layouts. If you use a non-QWERTY layout, the shortcuts remain in the same physical positions.
+</Note>

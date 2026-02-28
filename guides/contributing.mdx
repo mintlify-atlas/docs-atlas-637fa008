@@ -1,0 +1,348 @@
+---
+title: Contributing guide
+description: Learn how to contribute to the typing test project with themes, wordlists, bug fixes, and new features
+---
+
+## Welcome contributors
+
+Thank you for your interest in contributing to the typing test project! This is a recreation of [monkeytype](https://monkeytype.com), built with React, Redux, and TypeScript. We welcome contributions of all kinds, from themes and wordlists to bug fixes and new features.
+
+<Note>
+  This project is currently live at [https://slmn.sh/typing-test/](https://slmn.sh/typing-test/)
+</Note>
+
+## Getting started
+
+Follow these steps to set up the project locally and start contributing.
+
+<Steps>
+  <Step title="Fork and clone the repository">
+    ```bash
+    git clone https://github.com/salmannotkhan/typing-test.git
+    cd typing-test
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    npm install
+    ```
+  </Step>
+
+  <Step title="Start the development server">
+    ```bash
+    npm start
+    ```
+    
+    The application will be available at `http://localhost:3000`
+  </Step>
+
+  <Step title="Create a production build (optional)">
+    ```bash
+    npm run build
+    ```
+    
+    Use this to test the production build before submitting your changes.
+  </Step>
+</Steps>
+
+## Types of contributions
+
+We accept various types of contributions. Choose the one that matches your interest:
+
+<CardGroup cols={2}>
+  <Card title="Custom themes" icon="palette" href="#contributing-themes">
+    Add new color schemes to personalize the typing experience
+  </Card>
+  
+  <Card title="Custom wordlists" icon="list" href="#contributing-wordlists">
+    Create specialized word collections for different topics or languages
+  </Card>
+  
+  <Card title="Bug fixes" icon="bug" href="#contributing-code">
+    Help improve stability and fix reported issues
+  </Card>
+  
+  <Card title="New features" icon="sparkles" href="#contributing-code">
+    Propose and implement new functionality
+  </Card>
+</CardGroup>
+
+## Contributing themes
+
+Themes are one of the easiest and most impactful contributions you can make.
+
+<Steps>
+  <Step title="Design your theme">
+    Choose four colors for your theme:
+    - **Background color** - Main page background
+    - **Font color** - Untyped text
+    - **Highlight color** - Caret, errors, timer, and hover states
+    - **Foreground color** - Correctly typed characters
+
+    <Note>
+      Use hex color codes for consistency. Test your colors for sufficient contrast and readability.
+    </Note>
+  </Step>
+
+  <Step title="Add theme to themes.scss">
+    Open `src/stylesheets/themes.scss` and add your theme:
+
+    ```scss themes.scss
+    .your-theme-name {
+        --bg-color: #background-color;
+        --font-color: #font-color;
+        --hl-color: #highlight-color;
+        --fg-color: #foreground-color;
+    }
+    ```
+  </Step>
+
+  <Step title="Register in Header.tsx">
+    Open `src/components/Header.tsx` and add your theme name to the options:
+
+    ```tsx Header.tsx
+    export const options: Options = {
+        time: [15, 30, 45, 60, 120],
+        theme: [
+            "default",
+            "mkbhd",
+            "mocha",
+            // ... other themes
+            "your-theme-name" // Add here
+        ],
+        type: ["words", "sentences"],
+    };
+    ```
+
+    <Warning>
+      The theme name in `themes.scss` and `Header.tsx` must match exactly.
+    </Warning>
+  </Step>
+
+  <Step title="Test your theme">
+    - Restart the dev server
+    - Open the app and select your theme
+    - Verify all colors appear correctly
+    - Test with different wordlists to ensure readability
+  </Step>
+</Steps>
+
+## Contributing wordlists
+
+Wordlists allow users to practice with domain-specific vocabulary or different languages.
+
+<Steps>
+  <Step title="Create your wordlist">
+    Create a JSON file named `your-wordlist-name.json` in `src/wordlists/`:
+
+    ```json your-wordlist-name.json
+    [
+        "word1",
+        "word2",
+        "word3",
+        "phrase or sentence",
+        "another word"
+    ]
+    ```
+
+    **Wordlist guidelines:**
+    - Include 200-500+ unique entries
+    - Keep words between 3-12 characters when possible
+    - Use only a single array (no nested structures)
+    - Ensure proper JSON formatting
+
+    <Warning>
+      The JSON file must contain only a single array. No objects or nested arrays.
+    </Warning>
+  </Step>
+
+  <Step title="Register in Header.tsx">
+    Add your wordlist to the `type` array:
+
+    ```tsx Header.tsx
+    export const options: Options = {
+        time: [15, 30, 45, 60, 120],
+        theme: ["default", "mkbhd", "mocha"],
+        type: [
+            "words",
+            "sentences",
+            // ... other wordlists
+            "your-wordlist-name" // Add here (without .json)
+        ],
+    };
+    ```
+
+    <Note>
+      The wordlist name must match your filename exactly (without the `.json` extension).
+    </Note>
+  </Step>
+
+  <Step title="Test your wordlist">
+    - Restart the dev server
+    - Select your wordlist from the type options
+    - Complete several tests to ensure variety
+    - Check for typos or duplicate words
+  </Step>
+</Steps>
+
+## Contributing code
+
+For bug fixes, features, or improvements to the codebase:
+
+<Steps>
+  <Step title="Check existing issues">
+    Browse the [GitHub issues](https://github.com/salmannotkhan/typing-test/issues) to see if your bug or feature has already been reported.
+  </Step>
+
+  <Step title="Create an issue (for features)">
+    If you're adding a new feature, create an issue first to discuss the approach with maintainers.
+  </Step>
+
+  <Step title="Create a feature branch">
+    ```bash
+    git checkout -b feature/your-feature-name
+    # or
+    git checkout -b fix/bug-description
+    ```
+  </Step>
+
+  <Step title="Make your changes">
+    - Write clean, readable code
+    - Follow the existing code style
+    - Test your changes thoroughly
+    - Ensure the build succeeds: `npm run build`
+  </Step>
+
+  <Step title="Commit your changes">
+    ```bash
+    git add .
+    git commit -m "feat: add new feature" # or "fix: resolve bug"
+    git push origin feature/your-feature-name
+    ```
+  </Step>
+</Steps>
+
+### Code style guidelines
+
+- **TypeScript**: Use TypeScript types for all functions and components
+- **React**: Use functional components with hooks
+- **Redux**: Follow the existing Redux pattern for state management
+- **Formatting**: Match the existing code formatting style
+- **Comments**: Add comments for complex logic
+
+## Submitting a pull request
+
+Once your contribution is ready:
+
+<Steps>
+  <Step title="Create a pull request">
+    Go to the [repository](https://github.com/salmannotkhan/typing-test) and click "New Pull Request".
+  </Step>
+
+  <Step title="Describe your changes">
+    Provide a clear description:
+    - **For themes**: Include a screenshot showing your theme
+    - **For wordlists**: Describe the theme/topic of your wordlist
+    - **For code**: Explain what the change does and why
+  </Step>
+
+  <Step title="Wait for review">
+    A maintainer will review your contribution. They may request changes or approve it for merging.
+  </Step>
+
+  <Step title="Address feedback">
+    If changes are requested, make the updates and push to the same branch. The PR will automatically update.
+  </Step>
+</Steps>
+
+<Note>
+  **Review criteria**: If your contribution is well-implemented and aligns with the project goals, it will be merged!
+</Note>
+
+## Code of conduct
+
+This project follows the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/version/2/0/code_of_conduct.html). By participating, you are expected to uphold this code.
+
+### Our pledge
+
+We pledge to make participation in our community a harassment-free experience for everyone, regardless of:
+- Age, body size, disability (visible or invisible)
+- Ethnicity, gender identity and expression
+- Level of experience, education, socio-economic status
+- Nationality, personal appearance, race, religion
+- Sexual identity and orientation
+
+### Our standards
+
+<AccordionGroup>
+  <Accordion title="Positive behavior includes">
+    - Demonstrating empathy and kindness toward other people
+    - Being respectful of differing opinions, viewpoints, and experiences
+    - Giving and gracefully accepting constructive feedback
+    - Accepting responsibility and apologizing for mistakes
+    - Focusing on what is best for the overall community
+  </Accordion>
+
+  <Accordion title="Unacceptable behavior includes">
+    - The use of sexualized language or imagery
+    - Trolling, insulting or derogatory comments, and personal or political attacks
+    - Public or private harassment
+    - Publishing others' private information without explicit permission
+    - Other conduct which could reasonably be considered inappropriate in a professional setting
+  </Accordion>
+</AccordionGroup>
+
+### Enforcement
+
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders at **tony903212@gmail.com**. All complaints will be reviewed and investigated promptly and fairly.
+
+## Project structure
+
+Understanding the project structure will help you contribute effectively:
+
+```
+typing-test/
+├── src/
+│   ├── components/          # React components
+│   │   ├── App.tsx         # Main application component
+│   │   ├── Header.tsx      # Options header with time/theme/type
+│   │   ├── Test.tsx        # Typing test interface
+│   │   ├── Result.tsx      # Results display
+│   │   ├── Footer.tsx      # Footer component
+│   │   └── CommandPallet.tsx  # Command palette (Ctrl+K)
+│   ├── helpers/            # Helper functions
+│   │   ├── recordTest.ts   # Keyboard input handling
+│   │   ├── resetTest.ts    # Test reset logic
+│   │   └── startTimer.ts   # Timer functionality
+│   ├── store/              # Redux store
+│   │   ├── actions.ts      # Redux actions
+│   │   ├── reducer.ts      # Redux reducers
+│   │   └── store.ts        # Store configuration
+│   ├── stylesheets/        # SCSS styles
+│   │   ├── themes.scss     # Theme definitions
+│   │   └── *.scss          # Component styles
+│   └── wordlists/          # JSON wordlist files
+│       ├── words.json
+│       ├── sentences.json
+│       └── *.json          # Custom wordlists
+└── public/                 # Static assets
+```
+
+## Need help?
+
+If you have questions or need assistance:
+
+- **Issues**: Open a GitHub issue for bugs or feature requests
+- **Discussions**: Use GitHub Discussions for general questions
+- **Email**: Contact the maintainer at tony903212@gmail.com
+
+<Card title="Ready to contribute?" icon="rocket">
+  Fork the repository and start working on your first contribution today!
+  
+  [View on GitHub →](https://github.com/salmannotkhan/typing-test)
+</Card>
+
+## Thank you
+
+Every contribution, no matter how small, helps make this project better for everyone. We appreciate your time and effort in improving the typing test experience!

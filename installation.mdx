@@ -1,0 +1,337 @@
+---
+title: Installation guide
+description: Detailed setup instructions for the typing test application
+---
+
+This guide provides comprehensive installation and setup instructions for the typing test application.
+
+## System requirements
+
+Before installing, ensure your system meets these requirements:
+
+<CardGroup cols={2}>
+  <Card title="Node.js" icon="node-js">
+    Version 14.x or higher required
+  </Card>
+  <Card title="npm" icon="npm">
+    Version 6.x or higher (included with Node.js)
+  </Card>
+  <Card title="Git" icon="git">
+    Latest stable version recommended
+  </Card>
+  <Card title="Browser" icon="browser">
+    Modern browser with ES6 support
+  </Card>
+</CardGroup>
+
+## Installation steps
+
+<Steps>
+  <Step title="Install Node.js">
+    Download and install Node.js from [nodejs.org](https://nodejs.org/). Verify installation:
+    
+    ```bash
+    node --version
+    npm --version
+    ```
+    
+    You should see version numbers for both commands.
+  </Step>
+
+  <Step title="Clone the repository">
+    Use Git to clone the typing-test repository:
+    
+    ```bash
+    git clone https://github.com/salmannotkhan/typing-test.git
+    ```
+    
+    Navigate into the project directory:
+    
+    ```bash
+    cd typing-test
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    Install all project dependencies using npm:
+    
+    ```bash
+    npm install
+    ```
+    
+    This installs the following key packages:
+    
+    <CodeGroup>
+    ```json Core dependencies
+    {
+      "react": "^17.0.2",
+      "react-dom": "^17.0.2",
+      "react-redux": "^7.2.6",
+      "redux": "^4.1.2",
+      "typescript": "^4.5.4",
+      "sass": "^1.49.0"
+    }
+    ```
+    
+    ```json Development dependencies
+    {
+      "@testing-library/react": "^12.1.2",
+      "@testing-library/jest-dom": "^5.16.1",
+      "husky": "^8.0.0",
+      "prettier": "^2.7.1"
+    }
+    ```
+    </CodeGroup>
+  </Step>
+
+  <Step title="Configure Git hooks (optional)">
+    The project uses Husky for Git hooks. Install them with:
+    
+    ```bash
+    npm run prepare
+    ```
+    
+    This sets up pre-commit hooks for code formatting with Prettier.
+  </Step>
+</Steps>
+
+## Available scripts
+
+The `package.json` file includes several useful scripts:
+
+### Development server
+
+Start the development server with hot reloading:
+
+```bash
+npm start
+```
+
+<Note>
+  The app runs at `http://localhost:3000` by default. The page will reload when you make changes.
+</Note>
+
+### Production build
+
+Create an optimized production build:
+
+```bash
+npm run build
+```
+
+The build output is generated in the `build/` directory and is ready for deployment.
+
+### Testing
+
+Run the test suite:
+
+```bash
+npm test
+```
+
+Launches the test runner in interactive watch mode.
+
+### Eject (advanced)
+
+<Warning>
+  This is a one-way operation. Once you eject, you can't go back!
+</Warning>
+
+```bash
+npm run eject
+```
+
+Ejects from Create React App configuration for full control over webpack, Babel, ESLint, etc.
+
+## Project structure
+
+After installation, your project directory will look like this:
+
+```
+typing-test/
+├── public/              # Static files
+│   └── manifest.json    # PWA manifest
+├── src/
+│   ├── components/      # React components
+│   │   ├── App.tsx
+│   │   ├── Test.tsx
+│   │   ├── Result.tsx
+│   │   ├── Header.tsx
+│   │   ├── Footer.tsx
+│   │   └── CommandPallet.tsx
+│   ├── helpers/         # Utility functions
+│   │   ├── resetTest.ts
+│   │   ├── recordTest.ts
+│   │   └── startTimer.ts
+│   ├── store/           # Redux store
+│   │   ├── store.ts
+│   │   ├── reducer.ts
+│   │   └── actions.ts
+│   ├── stylesheets/     # Sass stylesheets
+│   ├── wordlists/       # JSON word lists
+│   └── index.tsx        # Application entry point
+├── package.json         # Dependencies and scripts
+└── tsconfig.json        # TypeScript configuration
+```
+
+## Redux store setup
+
+The application uses Redux for state management. Here's the store configuration:
+
+```typescript
+// src/store/store.ts
+import reducer from "./reducer";
+import { createStore } from "redux";
+
+export const store = createStore(
+    reducer,
+    (window as any).__REDUX_DEVTOOLS_EXTENSION__ &&
+        (window as any).__REDUX_DEVTOOLS_EXTENSION__()
+);
+```
+
+The state is organized into three main slices:
+
+<CodeGroup>
+```typescript Preferences state
+{
+  preferences: {
+    theme: string,
+    timeLimit: number,
+    type: string
+  }
+}
+```
+
+```typescript Word state
+{
+  word: {
+    currWord: string,
+    typedWord: string,
+    typedHistory: string[],
+    wordList: string[],
+    activeWordRef: RefObject<HTMLDivElement> | null,
+    caretRef: RefObject<HTMLSpanElement> | null
+  }
+}
+```
+
+```typescript Timer state
+{
+  time: {
+    timer: number,
+    timerId: NodeJS.Timeout | null
+  }
+}
+```
+</CodeGroup>
+
+## Environment configuration
+
+The application uses environment-based configuration:
+
+### Development environment
+
+- **Port**: 3000 (default)
+- **Hot reloading**: Enabled
+- **Source maps**: Generated
+- **Redux DevTools**: Enabled
+
+### Production environment
+
+- **Minification**: Enabled
+- **Code splitting**: Automatic
+- **Asset optimization**: Enabled
+- **PWA support**: Configured via `manifest.json`
+
+## Browser support
+
+The application supports:
+
+**Production builds:**
+- Browsers with >0.2% market share
+- No dead browsers
+- No Opera Mini
+
+**Development builds:**
+- Latest Chrome version
+- Latest Firefox version
+- Latest Safari version
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="npm install fails">
+    Try clearing the npm cache and reinstalling:
+    
+    ```bash
+    npm cache clean --force
+    rm -rf node_modules package-lock.json
+    npm install
+    ```
+  </Accordion>
+  
+  <Accordion title="Port 3000 already in use">
+    You can specify a different port:
+    
+    ```bash
+    PORT=3001 npm start
+    ```
+  </Accordion>
+  
+  <Accordion title="TypeScript errors">
+    Ensure you're using TypeScript 4.5.4 or higher:
+    
+    ```bash
+    npx tsc --version
+    ```
+    
+    If needed, reinstall TypeScript:
+    
+    ```bash
+    npm install typescript@^4.5.4
+    ```
+  </Accordion>
+  
+  <Accordion title="Build fails">
+    Check that you have sufficient disk space and memory. Try:
+    
+    ```bash
+    export NODE_OPTIONS="--max-old-space-size=4096"
+    npm run build
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Architecture overview"
+    icon="sitemap"
+    href="/reference/components/overview"
+  >
+    Learn about the application structure and design patterns
+  </Card>
+  <Card
+    title="Customization guide"
+    icon="wrench"
+    href="/guides/customization"
+  >
+    Add custom themes and word lists
+  </Card>
+  <Card
+    title="Component reference"
+    icon="puzzle-piece"
+    href="/reference/components/overview"
+  >
+    Explore the React component hierarchy
+  </Card>
+  <Card
+    title="State management"
+    icon="database"
+    href="/reference/state/store"
+  >
+    Deep dive into Redux store and actions
+  </Card>
+</CardGroup>

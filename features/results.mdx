@@ -1,0 +1,273 @@
+---
+title: Results
+description: Understand WPM calculation, accuracy metrics, and how your typing performance is measured
+---
+
+After the timer reaches zero, the typing test displays your results including words per minute (WPM) and accuracy statistics. All calculations are performed in `Result.tsx`.
+
+## WPM calculation
+
+Words Per Minute (WPM) is the standard metric for typing speed. This application uses the industry-standard formula that counts 5 characters as one "word."
+
+### The formula
+
+```typescript
+const wpm = ((correctChars + spaces) * 60) / timeLimit / 5;
+```
+
+Breaking down the calculation (`Result.tsx:19`):
+
+<Steps>
+  <Step title="Count correct characters">
+    Sum the length of all correctly typed words:
+    
+    ```typescript
+    let correctChars = 0;
+    result.forEach((r, idx) => {
+        if (r) correctChars += wordList[idx].length;
+    });
+    ```
+  </Step>
+  
+  <Step title="Add spaces">
+    Count the number of words typed (each word requires a space):
+    
+    ```typescript
+    const spaces = wordList.indexOf(currWord);
+    ```
+  </Step>
+  
+  <Step title="Calculate rate per minute">
+    Multiply by 60 to convert from the time limit to a per-minute rate:
+    
+    ```typescript
+    (correctChars + spaces) * 60 / timeLimit
+    ```
+  </Step>
+  
+  <Step title="Divide by 5">
+    Divide by 5 to convert characters to "words" (industry standard):
+    
+    ```typescript
+    / 5
+    ```
+  </Step>
+</Steps>
+
+<Info>
+The division by 5 is an industry standard. This means typing "hello" (5 characters) + space counts as 1.2 words for WPM calculation.
+</Info>
+
+### Example calculation
+
+<Tabs>
+  <Tab title="Example 1">
+    **Scenario:** 60-second test, typed 50 correct characters across 10 words
+    
+    ```
+    correctChars = 50
+    spaces = 10
+    timeLimit = 60
+    
+    wpm = ((50 + 10) * 60) / 60 / 5
+    wpm = (60 * 60) / 60 / 5
+    wpm = 3600 / 60 / 5
+    wpm = 60 / 5
+    wpm = 12
+    ```
+    
+    **Result:** 12 WPM
+  </Tab>
+  
+  <Tab title="Example 2">
+    **Scenario:** 30-second test, typed 100 correct characters across 20 words
+    
+    ```
+    correctChars = 100
+    spaces = 20
+    timeLimit = 30
+    
+    wpm = ((100 + 20) * 60) / 30 / 5
+    wpm = (120 * 60) / 30 / 5
+    wpm = 7200 / 30 / 5
+    wpm = 240 / 5
+    wpm = 48
+    ```
+    
+    **Result:** 48 WPM
+  </Tab>
+  
+  <Tab title="Example 3">
+    **Scenario:** 15-second test, typed 75 correct characters across 15 words
+    
+    ```
+    correctChars = 75
+    spaces = 15
+    timeLimit = 15
+    
+    wpm = ((75 + 15) * 60) / 15 / 5
+    wpm = (90 * 60) / 15 / 5
+    wpm = 5400 / 15 / 5
+    wpm = 360 / 5
+    wpm = 72
+    ```
+    
+    **Result:** 72 WPM
+  </Tab>
+</Tabs>
+
+## Accuracy metrics
+
+The results screen displays both correct and incorrect word counts.
+
+### Word comparison
+
+Each typed word is compared exactly against the target word:
+
+```typescript
+const result = typedHistory.map(
+    (typedWord, idx) => typedWord === wordList[idx]
+);
+```
+
+This creates a boolean array where `true` means the word was typed correctly and `false` means it had any errors.
+
+<Warning>
+A word is only counted as correct if it matches exactly - any typos, extra characters, or missing characters mark the entire word as incorrect.
+</Warning>
+
+### Correct words
+
+```typescript
+result.filter((x) => x).length
+```
+
+Counts how many words in the `result` array are `true` (perfect matches).
+
+### Incorrect words
+
+```typescript
+result.filter((x) => !x).length
+```
+
+Counts how many words in the `result` array are `false` (had errors).
+
+## Results display
+
+The results are shown in a simple table format (`Result.tsx:21-44`):
+
+<CardGroup cols={3}>
+  <Card title="WPM" icon="gauge-high">
+    Displayed as large heading, rounded to nearest integer:
+    
+    ```typescript
+    Math.round(wpm) + " wpm"
+    ```
+  </Card>
+  
+  <Card title="Correct words" icon="check">
+    Count of perfectly typed words
+  </Card>
+  
+  <Card title="Incorrect words" icon="xmark">
+    Count of words with any errors (styled in red)
+  </Card>
+</CardGroup>
+
+```typescript
+<table>
+    <tbody>
+        <tr>
+            <td colSpan={2} align="center">
+                <h1>{Math.round(wpm) + " wpm"}</h1>
+            </td>
+        </tr>
+        <tr>
+            <th>Correct Words:</th>
+            <td>{result.filter((x) => x).length}</td>
+        </tr>
+        <tr className="wrong">
+            <th>Incorrect Words:</th>
+            <td>{result.filter((x) => !x).length}</td>
+        </tr>
+    </tbody>
+</table>
+```
+
+## Understanding your results
+
+### Only correct characters count
+
+The WPM formula only includes characters from correctly typed words:
+
+```typescript
+result.forEach((r, idx) => {
+    if (r) correctChars += wordList[idx].length;
+});
+```
+
+If you typed a word incorrectly, those characters don't contribute to your WPM at all.
+
+<Tabs>
+  <Tab title="Scenario A">
+    You typed 10 words, all correct:
+    - Correct words: 10
+    - Incorrect words: 0
+    - All characters count toward WPM
+  </Tab>
+  
+  <Tab title="Scenario B">
+    You typed 10 words, 8 correct, 2 wrong:
+    - Correct words: 8
+    - Incorrect words: 2
+    - Only characters from the 8 correct words count toward WPM
+  </Tab>
+  
+  <Tab title="Scenario C">
+    You typed 10 words, all incorrect:
+    - Correct words: 0
+    - Incorrect words: 10
+    - 0 WPM (no correct characters)
+  </Tab>
+</Tabs>
+
+### Spaces are counted
+
+Each word you complete adds both its characters AND a space to the calculation:
+
+```typescript
+const spaces = wordList.indexOf(currWord);
+const wpm = ((correctChars + spaces) * 60) / timeLimit / 5;
+```
+
+The `spaces` variable equals the number of words completed (since each word is followed by a space).
+
+<Note>
+This is why the formula includes `+ spaces` - it accounts for the space character between words that you typed.
+</Note>
+
+### Time limits affect WPM scaling
+
+Shorter time limits can lead to higher WPM scores because:
+
+- Less time for fatigue to set in
+- Easier to maintain peak speed for 15 seconds vs 60 seconds
+- The `* 60 / timeLimit` factor scales shorter tests up to a per-minute rate
+
+<Info>
+For fair comparisons, always compare WPM scores from the same time limit. A 60-second test is the most standard benchmark.
+</Info>
+
+## Restart button
+
+After viewing results, click the Restart button to reset the test:
+
+```typescript
+<button onClick={() => resetTest()}>Restart</button>
+```
+
+This will:
+1. Clear all typed history
+2. Reset the timer to the configured time limit
+3. Shuffle the wordlist again for a fresh test
+4. Return to the typing test screen

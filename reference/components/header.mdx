@@ -1,0 +1,155 @@
+---
+title: Header
+description: Configuration interface component for test parameters including time limits, themes, and test types
+---
+
+The Header component provides the main configuration interface for the typing test, allowing users to select time limits, themes, and test types. It includes animated theme transitions and persistence to localStorage.
+
+## Import
+
+```typescript
+import Header from "components/Header";
+import { Options, options } from "components/Header";
+```
+
+## Usage
+
+```tsx
+import Header from "components/Header";
+
+function App() {
+  return (
+    <div>
+      <Header />
+      {/* Other components */}
+    </div>
+  );
+}
+```
+
+The Header component takes no props and manages its own state through Redux.
+
+## Options interface
+
+The component exports an `Options` interface and `options` object that define available configuration choices:
+
+<ParamField path="time" type="number[]">
+  Available time limit options in seconds: `[15, 30, 45, 60, 120]`
+</ParamField>
+
+<ParamField path="theme" type="string[]">
+  Available theme names:
+  - `default`
+  - `mkbhd`
+  - `mocha`
+  - `coral`
+  - `ocean`
+  - `azure`
+  - `forest`
+  - `rose-milk`
+  - `amethyst`
+  - `amber`
+  - `terminal`
+  - `vscode`
+  - `mountain`
+  - `pink-sky`
+  - `red-season`
+</ParamField>
+
+<ParamField path="type" type="string[]">
+  Available test types:
+  - `words` - Common words
+  - `hard-words` - Advanced vocabulary
+  - `sentences` - Full sentences
+  - `numbers` - Number sequences
+  - `got` - Game of Thrones quotes
+  - `javascript` - JavaScript code
+  - `python` - Python code
+</ParamField>
+
+## Redux state
+
+The component accesses the following Redux state:
+
+<ParamField path="preferences.timeLimit" type="number">
+  Currently selected time limit in seconds
+</ParamField>
+
+<ParamField path="preferences.theme" type="string">
+  Currently selected theme name
+</ParamField>
+
+<ParamField path="preferences.type" type="string">
+  Currently selected test type
+</ParamField>
+
+<ParamField path="time.timerId" type="number | null">
+  Active timer ID (header hides when test is running)
+</ParamField>
+
+## Redux actions
+
+The component dispatches these actions:
+
+- `setTheme(theme: string)` - Update selected theme
+- `setTime(time: number)` - Update time limit
+- `setType(type: string)` - Update test type
+- `setWordList(words: string[])` - Load word list for selected type
+- `timerSet(time: number)` - Initialize timer
+
+## Behavior
+
+### Initialization
+
+On mount, the component:
+1. Loads preferences from localStorage (theme, type, time)
+2. Imports the appropriate word list based on type
+3. Dispatches actions to set initial state
+
+### Theme switching
+
+When a theme button is clicked:
+1. An animated circle expands from the click position
+2. After 750ms, the theme is applied globally
+3. The new theme is saved to localStorage
+
+### Option selection
+
+Clicking any option button:
+1. Prevents re-selection of current option
+2. Updates the selected state in Redux
+3. Saves preference to localStorage
+4. Resets the test (for time/type changes)
+
+### Visibility
+
+The header automatically hides when `timerId` is set (test is running).
+
+## Example
+
+```tsx
+// Header usage in main app
+import { useState } from "react";
+import Header from "components/Header";
+import Test from "components/Test";
+
+function App() {
+  return (
+    <div className="app">
+      <Header />
+      <Test />
+    </div>
+  );
+}
+```
+
+## Styling
+
+The component uses:
+- `stylesheets/Header.scss` - Main header styles
+- `stylesheets/AnimatedTheme.scss` - Theme transition animation
+
+## Related
+
+- [Test component](./test) - Main typing interface
+- [CommandPallet component](./command-pallet) - Alternative settings interface

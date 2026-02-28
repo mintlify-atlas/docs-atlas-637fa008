@@ -1,0 +1,72 @@
+---
+title: Helper functions
+description: Utility functions for managing typing test operations including test recording, reset, and timer control.
+---
+
+The helpers module provides core utility functions that manage the typing test lifecycle, handle user input, and control the test timer.
+
+## recordTest
+
+Records and processes keyboard input during an active typing test.
+
+```typescript
+recordTest(key: string, ctrlKey: boolean): void
+```
+
+### Parameters
+
+- `key` - The keyboard key that was pressed
+- `ctrlKey` - Boolean indicating if the Ctrl key was held down
+
+### Behavior
+
+The `recordTest` function handles all keyboard input during a typing test:
+
+- **Tab key**: Resets the test when pressed (if test is active or has started)
+- **Space key**: Completes the current word and marks it as correct or wrong
+- **Backspace**: Deletes characters or backtracks to previous words (Ctrl+Backspace clears entire word)
+- **Character keys**: Appends typed characters to the current word
+
+Special features:
+- Starts the timer automatically on first character input
+- Scrolls the active word into view for better UX
+- Manages caret blinking animation
+- Updates word styling to show correct/incorrect status
+
+## resetTest
+
+Resets the typing test to its initial state.
+
+```typescript
+resetTest(): Promise<void>
+```
+
+### Behavior
+
+The `resetTest` function performs a complete test reset:
+
+- Clears the timer interval if running
+- Removes all "right" and "wrong" CSS classes from word elements
+- Loads a fresh word list based on the current word type preference
+- Resets the timer to the configured time limit
+- Resets the timer ID to null
+
+This is an async function because it dynamically imports the word list based on the selected word type.
+
+## startTimer
+
+Initiates the countdown timer for the typing test.
+
+```typescript
+startTimer(): void
+```
+
+### Behavior
+
+The `startTimer` function:
+
+- Creates a 1-second interval that decrements the timer
+- Stores the interval ID in Redux state for later cleanup
+- Dispatches the `timerDecrement` action every second
+
+The timer continues running until it reaches zero or until `resetTest` is called to clear the interval.

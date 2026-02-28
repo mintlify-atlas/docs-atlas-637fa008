@@ -1,0 +1,229 @@
+---
+title: Themes
+description: Customize your typing test appearance with 15 beautiful color themes ranging from dark to light palettes
+---
+
+The typing test includes 15 built-in themes that customize the background, text, highlight, and foreground colors. All themes are defined in `themes.scss` using CSS custom properties.
+
+## Theme structure
+
+Each theme defines four CSS variables:
+
+- `--bg-color` - Main background color
+- `--font-color` - Primary text color
+- `--hl-color` - Highlight/accent color (used for active elements)
+- `--fg-color` - Foreground color (used for secondary elements)
+
+## Available themes
+
+### Dark themes
+
+<CardGroup cols={2}>
+  <Card title="default" icon="circle">
+    A classic dark theme with orange highlights.
+    
+    - Background: `black`
+    - Text: `lightslategray`
+    - Highlight: `orange`
+    - Foreground: `#292f34`
+  </Card>
+  
+  <Card title="mkbhd" icon="circle">
+    Inspired by tech reviewer aesthetics with red accents.
+    
+    - Background: `#171717`
+    - Text: `#ededed`
+    - Highlight: `#da0037`
+    - Foreground: `#444444`
+  </Card>
+  
+  <Card title="mocha" icon="circle">
+    Warm coffee-inspired brown tones.
+    
+    - Background: `#2d2424`
+    - Text: `#e0c097`
+    - Highlight: `#dc521c`
+    - Foreground: `#5c3d2e`
+  </Card>
+  
+  <Card title="azure" icon="circle">
+    Cool blue-gray with warm peach highlights.
+    
+    - Background: `#383e56`
+    - Text: `#eedad1`
+    - Highlight: `#f69e7b`
+    - Foreground: `#d4b5b0`
+  </Card>
+  
+  <Card title="forest" icon="circle">
+    Nature-inspired greens with cream text.
+    
+    - Background: `#334443`
+    - Text: `#fff8df`
+    - Highlight: `#c6ffc1`
+    - Foreground: `#34656d`
+  </Card>
+  
+  <Card title="terminal" icon="circle">
+    Classic terminal appearance with bright colors.
+    
+    - Background: `#000000`
+    - Text: `#ffffff`
+    - Highlight: `#ff0000`
+    - Foreground: `#00ff00`
+  </Card>
+  
+  <Card title="vscode" icon="circle">
+    Mimics Visual Studio Code's default dark theme.
+    
+    - Background: `#1e1e1e`
+    - Text: `#d4d4d4`
+    - Highlight: `#ce9178`
+    - Foreground: `#474747`
+  </Card>
+  
+  <Card title="mountain" icon="circle">
+    Deep forest green with golden accents.
+    
+    - Background: `#10271e`
+    - Text: `#d1ac3f`
+    - Highlight: `#a2d6f6`
+    - Foreground: `#485e2c`
+  </Card>
+  
+  <Card title="red-season" icon="circle">
+    Dark theme with vibrant red text.
+    
+    - Background: `#1e1c1c`
+    - Text: `#e73535`
+    - Highlight: `#d4d4d4`
+    - Foreground: `#593b3e`
+  </Card>
+  
+  <Card title="pink-sky" icon="circle">
+    Vibrant purple and pink vaporwave aesthetic.
+    
+    - Background: `#23049D`
+    - Text: `#FF79CD`
+    - Highlight: `#FFDF6B`
+    - Foreground: `#AA2EE6`
+  </Card>
+</CardGroup>
+
+### Light themes
+
+<CardGroup cols={2}>
+  <Card title="coral" icon="circle">
+    Soft peachy background with coral text.
+    
+    - Background: `#fdd2bf`
+    - Text: `#df5e5e`
+    - Highlight: `#492f10`
+    - Foreground: `#e98580`
+  </Card>
+  
+  <Card title="ocean" icon="circle">
+    Clean light gray with ocean blue text.
+    
+    - Background: `#dddddd`
+    - Text: `#125d98`
+    - Highlight: `#f5a962`
+    - Foreground: `#3c8dad`
+  </Card>
+  
+  <Card title="rose-milk" icon="circle">
+    Pure white background with dark text.
+    
+    - Background: `#ffffff`
+    - Text: `#111111`
+    - Highlight: `#b33838`
+    - Foreground: `#3b8792`
+  </Card>
+  
+  <Card title="amethyst" icon="circle">
+    Soft lavender with deep purple text.
+    
+    - Background: `#e2caea`
+    - Text: `#480c51`
+    - Highlight: `#ab395f`
+    - Foreground: `#9774aa`
+  </Card>
+  
+  <Card title="amber" icon="circle">
+    Bold golden yellow with red-orange text.
+    
+    - Background: `#feb204`
+    - Text: `#d53600`
+    - Highlight: `#700e01`
+    - Foreground: `#ff8503`
+  </Card>
+</CardGroup>
+
+## How themes are applied
+
+Themes are implemented using CSS custom properties (variables) in `themes.scss`. When you select a theme:
+
+1. The theme name is stored in Redux state (`reducer.ts:138-139`)
+2. The corresponding CSS class is applied to the root element
+3. All components automatically inherit the color scheme through CSS variables
+
+<Tabs>
+  <Tab title="CSS Structure">
+    ```scss
+    .default {
+        --bg-color: black;
+        --font-color: lightslategray;
+        --hl-color: orange;
+        --fg-color: #292f34;
+    }
+    ```
+    
+    Each theme is a CSS class that defines the four color variables.
+  </Tab>
+  
+  <Tab title="Redux State">
+    ```typescript
+    preferences: {
+        theme: string;
+        timeLimit: number;
+        type: string;
+    }
+    ```
+    
+    The selected theme name is stored in the preferences slice of Redux state.
+  </Tab>
+  
+  <Tab title="Component Usage">
+    Components reference the CSS variables directly:
+    
+    ```css
+    background-color: var(--bg-color);
+    color: var(--font-color);
+    ```
+  </Tab>
+</Tabs>
+
+## Switching themes
+
+You can change themes at any time using the command palette (keyboard shortcuts) without interrupting your test. The new theme applies immediately across all components.
+
+<Note>
+Theme preferences persist in local storage, so your selected theme will be remembered when you return to the app.
+</Note>
+
+## Creating custom themes
+
+To add a new theme, define a new CSS class in `themes.scss` with the four required color variables:
+
+```scss
+.my-custom-theme {
+    --bg-color: #yourcolor;
+    --font-color: #yourcolor;
+    --hl-color: #yourcolor;
+    --fg-color: #yourcolor;
+}
+```
+
+<Warning>
+Make sure there is sufficient contrast between `--bg-color` and `--font-color` for readability during typing tests.
+</Warning>

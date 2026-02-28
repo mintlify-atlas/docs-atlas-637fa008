@@ -1,0 +1,229 @@
+---
+title: Reducers
+description: Redux reducers that handle state updates for timer, word tracking, and user preferences
+---
+
+## Root reducer
+
+The application uses `combineReducers` to compose three specialized reducers:
+
+```typescript
+export default combineReducers({
+    time: timerReducer,
+    word: wordReducer,
+    preferences: preferenceReducer,
+});
+```
+
+Source: `src/store/reducer.ts:155-159`
+
+## Timer reducer
+
+Manages timer state including countdown and interval tracking.
+
+```typescript
+const timerReducer = (
+    state = initialState.time,
+    { type, payload }: AnyAction
+) => {
+    switch (type) {
+        case TIMER_DECREMENT:
+            return { ...state, timer: state.timer - 1 };
+        case TIMER_SET:
+            return { ...state, timer: payload };
+        case TIMERID_SET:
+            return { ...state, timerId: payload };
+        default:
+            return state;
+    }
+};
+```
+
+Source: `src/store/reducer.ts:59-73`
+
+### Handled actions
+
+#### TIMER_DECREMENT
+Decrements the timer by 1 second.
+
+**State changes:**
+- `timer` - Decreased by 1
+
+#### TIMER_SET
+Sets the timer to a specific value.
+
+**State changes:**
+- `timer` - Set to payload value
+
+#### TIMERID_SET
+Stores the timer interval reference.
+
+**State changes:**
+- `timerId` - Set to payload value
+
+## Word reducer
+
+Handles all word-related state including current word, typed text, history, and refs.
+
+```typescript
+const wordReducer = (
+    state = initialState.word,
+    { type, payload }: AnyAction
+) => {
+    switch (type) {
+        case SET_CHAR:
+            return { ...state, typedWord: payload };
+        case SET_WORD:
+            return { ...state, typedHistory: [...state.typedHistory, payload] };
+        case APPEND_TYPED_HISTORY:
+            const nextIdx = state.typedHistory.length + 1;
+            return {
+                ...state,
+                typedWord: "",
+                currWord: state.wordList[nextIdx],
+                typedHistory: [...state.typedHistory, state.typedWord],
+            };
+        case PREV_WORD:
+            const prevIdx = state.typedHistory.length - 1;
+            return {
+                ...state,
+                currWord: state.wordList[prevIdx],
+                typedWord: !payload ? state.typedHistory[prevIdx] : "",
+                typedHistory: state.typedHistory.splice(0, prevIdx),
+            };
+        case SET_REF:
+            return {
+                ...state,
+                activeWordRef: payload,
+            };
+        case SET_CARET_REF:
+            return {
+                ...state,
+                caretRef: payload,
+            };
+        case SET_WORDLIST:
+            const areNotWords = payload.some((word: string) =>
+                word.includes(" ")
+            );
+            var shuffledWordList: string[] = payload.sort(
+                () => Math.random() - 0.5
+            );
+            if (areNotWords)
+                shuffledWordList = payload.flatMap((token: string) =>
+                    token.split(" ")
+                );
+            return {
+                ...state,
+                typedWord: "",
+                typedHistory: [],
+                currWord: shuffledWordList[0],
+                wordList: shuffledWordList,
+            };
+        default:
+            return state;
+    }
+};
+```
+
+Source: `src/store/reducer.ts:75-131`
+
+### Handled actions
+
+#### SET_CHAR
+Updates the currently typed word as the user types.
+
+**State changes:**
+- `typedWord` - Set to payload value
+
+#### SET_WORD
+Adds a word to the typed history.
+
+**State changes:**
+- `typedHistory` - Payload appended to array
+
+#### APPEND_TYPED_HISTORY
+Completes the current word and advances to the next word.
+
+**State changes:**
+- `typedWord` - Cleared to empty string
+- `currWord` - Set to next word in wordList
+- `typedHistory` - Current typedWord appended to array
+
+#### PREV_WORD
+Backtracks to the previous word in the test.
+
+**State changes:**
+- `currWord` - Set to previous word in wordList
+- `typedWord` - Set to previous typed word or cleared based on payload
+- `typedHistory` - Truncated to remove last entry
+
+#### SET_REF
+Stores a React ref to the active word DOM element.
+
+**State changes:**
+- `activeWordRef` - Set to payload ref
+
+#### SET_CARET_REF
+Stores a React ref to the caret DOM element.
+
+**State changes:**
+- `caretRef` - Set to payload ref
+
+#### SET_WORDLIST
+Initializes the word list for a new test. Shuffles words randomly and splits any multi-word tokens.
+
+**State changes:**
+- `wordList` - Shuffled array of words, with multi-word strings split
+- `currWord` - Set to first word in shuffled list
+- `typedWord` - Cleared to empty string
+- `typedHistory` - Cleared to empty array
+
+## Preference reducer
+
+Manages user preferences including theme, time limit, and test type.
+
+```typescript
+const preferenceReducer = (
+    state = initialState.preferences,
+    { type, payload }: AnyAction
+) => {
+    switch (type) {
+        case SET_THEME:
+            return { ...state, theme: payload };
+        case SET_TIME:
+            return {
+                ...state,
+                timeLimit: payload,
+            };
+        case SET_TYPE:
+            return {
+                ...state,
+                type: payload,
+            };
+        default:
+            return state;
+    }
+};
+```
+
+Source: `src/store/reducer.ts:133-153`
+
+### Handled actions
+
+#### SET_THEME
+Updates the selected theme.
+
+**State changes:**
+- `theme` - Set to payload value
+
+#### SET_TIME
+Sets the test time limit.
+
+**State changes:**
+- `timeLimit` - Set to payload value
+
+#### SET_TYPE
+Sets the test type.
+
+**State changes:**
+- `type` - Set to payload value

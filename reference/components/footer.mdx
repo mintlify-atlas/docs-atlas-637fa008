@@ -1,0 +1,222 @@
+---
+title: Footer
+description: Application footer with keyboard shortcuts, external links, and contributor information
+---
+
+The Footer component displays keyboard shortcut hints, links to the project repository, creator attribution, and an interactive contributor list fetched from the GitHub API.
+
+## Import
+
+```typescript
+import Footer from "components/Footer";
+```
+
+## Usage
+
+```tsx
+import Footer from "components/Footer";
+
+function App() {
+  return (
+    <div>
+      {/* Other components */}
+      <Footer />
+    </div>
+  );
+}
+```
+
+The Footer component takes no props and manages its own state.
+
+## State management
+
+<ParamField path="contributors" type="Contributor[]">
+  Array of contributor data fetched from GitHub API
+</ParamField>
+
+<ParamField path="showList" type="boolean">
+  Controls visibility of the contributor list dropdown
+</ParamField>
+
+## Contributor interface
+
+The component defines a detailed `Contributor` interface matching GitHub's API response:
+
+<ParamField path="avatar_url" type="string">
+  URL to the contributor's GitHub avatar image
+</ParamField>
+
+<ParamField path="contributions" type="number">
+  Number of commits made by the contributor
+</ParamField>
+
+<ParamField path="html_url" type="string">
+  URL to the contributor's GitHub profile
+</ParamField>
+
+<ParamField path="id" type="number">
+  GitHub user ID
+</ParamField>
+
+<ParamField path="login" type="string">
+  GitHub username
+</ParamField>
+
+<ParamField path="node_id" type="string">
+  GitHub GraphQL node ID
+</ParamField>
+
+<ParamField path="site_admin" type="boolean">
+  Whether the user is a GitHub site administrator
+</ParamField>
+
+Additional fields include: `events_url`, `followers_url`, `following_url`, `gists_url`, `gravatar_id`, `organizations_url`, `received_events_url`, `repos_url`, `starred_url`, `subscriptions_url`, `type`, `url`
+
+## Redux state
+
+<ParamField path="time.timerId" type="number | null">
+  Active timer ID - footer hides when test is running
+</ParamField>
+
+## Data fetching
+
+On component mount, contributors are fetched from the GitHub API:
+
+```typescript
+useEffect(() => {
+  const URL = "https://api.github.com/repos/slmnsh/typing-test/contributors";
+  fetch(URL)
+    .then((res) => res.json())
+    .then((data: Contributor[]) =>
+      data.filter((contributor) => contributor.login !== "slmnsh")
+    )
+    .then((filtered) => setContributors(filtered));
+}, []);
+```
+
+The creator (`slmnsh`) is filtered out from the contributor list.
+
+## Keyboard shortcuts displayed
+
+<ParamField path="Ctrl + k" type="keyboard shortcut">
+  Opens the command palette
+</ParamField>
+
+<ParamField path="Tab" type="keyboard shortcut">
+  Restarts the typing test
+</ParamField>
+
+## Layout structure
+
+```tsx
+<div className={`bottom-area ${timerId ? "hidden" : ""}`}>
+  <span className="hint">
+    <kbd>Ctrl</kbd> + <kbd>k</kbd> to open command pallet
+  </span>
+  <span className="hint">
+    <kbd>Tab</kbd> to restart test
+  </span>
+  <footer>
+    <a href="https://www.github.com/slmnsh/typing-test">
+      <span>&lt;/&gt;</span> github
+    </a>
+    <span>
+      created by <a href="https://www.github.com/slmnsh">@slmn-sh</a>
+    </span>
+    {/* Contributor list */}
+    <button onClick={() => setShowList((s) => !s)}>
+      {showList ? "x close" : "{} contributors"}
+    </button>
+  </footer>
+</div>
+```
+
+## Contributor list
+
+When `showList` is true, a dropdown appears showing all contributors:
+
+```tsx
+{showList ? (
+  <div className="contributor-list">
+    <h2>contributors</h2>
+    {contributors.map((contributor) => (
+      <a
+        className="contributor"
+        href={contributor.html_url}
+        target="_blank"
+        rel="noreferrer"
+        key={contributor.node_id}
+      >
+        <img
+          height={50}
+          width={50}
+          src={contributor.avatar_url}
+          alt={`${contributor.login}'s avatar`}
+        />
+        <div className="contributor-details">
+          <div>@{contributor.login}</div>
+          <div>{contributor.contributions} commits</div>
+        </div>
+      </a>
+    ))}
+  </div>
+) : null}
+```
+
+Each contributor entry displays:
+- Avatar image (50x50)
+- GitHub username
+- Number of commits
+- Clickable link to their profile
+
+## Visibility control
+
+The footer hides when a test is active:
+
+```tsx
+className={`bottom-area ${timerId ? "hidden" : ""}`}
+```
+
+## External links
+
+All external links include security attributes:
+
+```tsx
+target="_blank"
+rel="noreferrer"
+```
+
+This prevents the new page from accessing `window.opener` and avoids sending referrer information.
+
+## Example integration
+
+```tsx
+import { useSelector } from "react-redux";
+import { State } from "store/reducer";
+import Footer from "components/Footer";
+
+function App() {
+  const { timerId } = useSelector((state: State) => state.time);
+  
+  return (
+    <div className="app">
+      {/* Main content */}
+      <Footer />
+    </div>
+  );
+}
+```
+
+## Styling
+
+The component uses `stylesheets/Footer.scss` for:
+- Bottom area positioning
+- Keyboard hint styling (`<kbd>` elements)
+- Contributor list dropdown
+- Button styling
+- Link hover effects
+
+## Related
+
+- [CommandPallet component](./command-pallet) - Opened via Ctrl+K shortcut
+- [Header component](./header) - Alternative settings interface

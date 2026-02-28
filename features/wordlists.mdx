@@ -1,0 +1,193 @@
+---
+title: Wordlists
+description: Choose from 7 different wordlists including common words, sentences, programming languages, and more
+---
+
+The typing test offers 7 curated wordlists stored as JSON files in `src/wordlists/`. Each list is designed for different typing practice scenarios.
+
+## Available wordlists
+
+<CardGroup cols={2}>
+  <Card title="words" icon="font">
+    Common English words for general typing practice.
+    
+    **Examples:** the, be, of, and, a, to, in, he, have
+    
+    **Use case:** Standard typing speed tests and everyday vocabulary practice.
+  </Card>
+  
+  <Card title="hard-words" icon="brain">
+    Longer, more challenging English words.
+    
+    **Examples:** internationalization, straightforward, duplicate, therefore, disappointment, cultivate, translate, transform, transport
+    
+    **Use case:** Advanced typing practice with complex vocabulary.
+  </Card>
+  
+  <Card title="sentences" icon="paragraph">
+    Complete sentences with punctuation and mixed word lengths.
+    
+    **Examples:**
+    - "Sarah and Ira drove to the store."
+    - "The ham, green beans, mashed potatoes, and corn are gluten-free."
+    - "My mother hemmed and hawed over where to go for dinner."
+    
+    **Use case:** Real-world typing practice including punctuation, capitalization, and natural sentence structure.
+  </Card>
+  
+  <Card title="numbers" icon="hashtag">
+    Numeric sequences and number-related content.
+    
+    **Use case:** Practice typing numbers and numeric data entry.
+  </Card>
+  
+  <Card title="javascript" icon="js">
+    JavaScript keywords, methods, and common terms.
+    
+    **Examples:** Array, Date, eval, function, hasOwnProperty, Infinity, isFinite, isNaN, isPrototypeOf
+    
+    **Use case:** Developers practicing JavaScript coding speed and muscle memory for common APIs.
+  </Card>
+  
+  <Card title="python" icon="python">
+    Python keywords, built-in functions, and common terms.
+    
+    **Use case:** Python developers improving coding speed and familiarity with language syntax.
+  </Card>
+  
+  <Card title="got" icon="dragon">
+    Words and phrases from Game of Thrones.
+    
+    **Use case:** Fun themed practice for fans of the series.
+  </Card>
+</CardGroup>
+
+## How wordlists work
+
+### File format
+
+All wordlists are stored as JSON arrays:
+
+```json
+[
+    "word1",
+    "word2",
+    "word3"
+]
+```
+
+### Loading and shuffling
+
+When you select a wordlist type:
+
+1. The JSON file is imported
+2. Words are shuffled randomly using `Math.random()` (`reducer.ts:114-116`)
+3. The shuffled array becomes the test wordlist
+
+```typescript
+var shuffledWordList: string[] = payload.sort(
+    () => Math.random() - 0.5
+);
+```
+
+<Info>
+Shuffling ensures each test has a different word order, preventing memorization and keeping practice sessions varied.
+</Info>
+
+### Sentence handling
+
+For wordlists containing sentences (like the "sentences" type), the application automatically splits sentences into individual words:
+
+```typescript
+const areNotWords = payload.some((word: string) =>
+    word.includes(" ")
+);
+if (areNotWords)
+    shuffledWordList = payload.flatMap((token: string) =>
+        token.split(" ")
+    );
+```
+
+This means:
+- "Sarah and Ira drove to the store." becomes → ["Sarah", "and", "Ira", "drove", "to", "the", "store."]
+- Each word is typed individually with spaces between
+- Punctuation remains attached to the final word
+
+<Tabs>
+  <Tab title="Regular words">
+    Words are used directly as individual typing targets.
+    
+    ```
+    the → be → of → and → a
+    ```
+  </Tab>
+  
+  <Tab title="Sentences">
+    Sentences are split into words, maintaining punctuation.
+    
+    ```
+    "Hello world!" → Hello → world!
+    ```
+  </Tab>
+  
+  <Tab title="Code words">
+    Programming terms are treated as regular words.
+    
+    ```
+    function → Array → hasOwnProperty
+    ```
+  </Tab>
+</Tabs>
+
+## Switching wordlists
+
+You can change the wordlist type at any time using the header controls. Changing the type will:
+
+1. Load the new wordlist
+2. Shuffle it randomly
+3. Reset the test with the new words
+4. Reset the timer to the configured time limit
+
+<Note>
+Switching wordlists during an active test will restart the test automatically.
+</Note>
+
+## Adding custom wordlists
+
+To add a new wordlist:
+
+<Steps>
+  <Step title="Create JSON file">
+    Create a new `.json` file in `src/wordlists/` with an array of words or sentences.
+    
+    ```json
+    [
+        "word1",
+        "word2",
+        "word3"
+    ]
+    ```
+  </Step>
+  
+  <Step title="Import in application">
+    Import the wordlist in your component or state management file.
+    
+    ```typescript
+    import customWords from './wordlists/custom.json';
+    ```
+  </Step>
+  
+  <Step title="Add to selection UI">
+    Add the new wordlist option to the header/command palette so users can select it.
+  </Step>
+</Steps>
+
+<Warning>
+Ensure your wordlist JSON is properly formatted as an array of strings. Invalid JSON will cause the application to fail loading the wordlist.
+</Warning>
+
+## Wordlist statistics
+
+<Info>
+The application does not currently display wordlist-specific statistics like average word length or total word count. All wordlists are treated equally by the WPM calculation algorithm.
+</Info>

@@ -1,0 +1,174 @@
+---
+title: Result
+description: Test results component displaying WPM, accuracy statistics, and restart functionality
+---
+
+The Result component displays the typing test results after completion, calculating words per minute (WPM), showing correct and incorrect word counts, and providing a restart button.
+
+## Import
+
+```typescript
+import Result from "components/Result";
+```
+
+## Usage
+
+```tsx
+import Result from "components/Result";
+import { useSelector } from "react-redux";
+import { State } from "store/reducer";
+
+function App() {
+  const { timerId } = useSelector((state: State) => state.time);
+  
+  return (
+    <div>
+      {timerId === null && <Result />}
+    </div>
+  );
+}
+```
+
+The Result component takes no props and calculates results from Redux state.
+
+## Redux state
+
+The component accesses the following Redux state:
+
+<ParamField path="word.wordList" type="string[]">
+  Array of target words in the test
+</ParamField>
+
+<ParamField path="word.typedHistory" type="string[]">
+  Array of words typed by the user
+</ParamField>
+
+<ParamField path="word.currWord" type="string">
+  The word where the test ended
+</ParamField>
+
+<ParamField path="preferences.timeLimit" type="number">
+  Test duration in seconds used for WPM calculation
+</ParamField>
+
+## WPM calculation
+
+Words per minute is calculated using the formula:
+
+```typescript
+const wpm = ((correctChars + spaces) * 60) / timeLimit / 5;
+```
+
+Where:
+- `correctChars` - Total characters in correctly typed words
+- `spaces` - Number of spaces (word index of final word)
+- `timeLimit` - Test duration in seconds
+- `5` - Standard word length divisor for WPM
+- `60` - Converts to per-minute rate
+
+### Correct character counting
+
+```typescript
+const result = typedHistory.map(
+  (typedWord, idx) => typedWord === wordList[idx]
+);
+
+result.forEach((r, idx) => {
+  if (r) correctChars += wordList[idx].length;
+});
+```
+
+Only characters from perfectly matched words are counted as correct.
+
+## Statistics displayed
+
+<ParamField path="WPM" type="number">
+  Words per minute, rounded to nearest integer
+</ParamField>
+
+<ParamField path="Correct Words" type="number">
+  Count of words typed exactly matching the target
+</ParamField>
+
+<ParamField path="Incorrect Words" type="number">
+  Count of words with any typing errors
+</ParamField>
+
+## Actions
+
+### Restart button
+
+Clicking the restart button calls `resetTest()` from `helpers/resetTest`, which:
+1. Clears typed history
+2. Resets timer
+3. Generates new word list
+4. Returns to test ready state
+
+## Layout structure
+
+```tsx
+<div className="result">
+  <table>
+    <tbody>
+      <tr>
+        <td colSpan={2} align="center">
+          <h1>{Math.round(wpm) + " wpm"}</h1>
+        </td>
+      </tr>
+      <tr>
+        <th>Correct Words:</th>
+        <td>{correctCount}</td>
+      </tr>
+      <tr className="wrong">
+        <th>Incorrect Words:</th>
+        <td>{incorrectCount}</td>
+      </tr>
+      <tr>
+        <td colSpan={2} align="center">
+          <button onClick={() => resetTest()}>Restart</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+## Example
+
+```tsx
+import { useSelector } from "react-redux";
+import { State } from "store/reducer";
+import Test from "components/Test";
+import Result from "components/Result";
+
+function TypingTest() {
+  const { timer } = useSelector((state: State) => state.time);
+  
+  return (
+    <div className="typing-test">
+      {timer > 0 ? <Test /> : <Result />}
+    </div>
+  );
+}
+```
+
+## Accuracy calculation
+
+While not directly displayed, accuracy can be derived from the shown statistics:
+
+```typescript
+const accuracy = (correctWords / (correctWords + incorrectWords)) * 100;
+```
+
+## Styling
+
+The component uses `stylesheets/Result.scss` for:
+- Table layout and spacing
+- Header (WPM) styling
+- Wrong answer highlighting (red)
+- Restart button styling
+
+## Related
+
+- [Test component](./test) - Main typing interface
+- [Header component](./header) - Configure next test

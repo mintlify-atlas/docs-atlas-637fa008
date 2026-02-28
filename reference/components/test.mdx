@@ -1,0 +1,169 @@
+---
+title: Test
+description: Main typing test interface component with word display, caret tracking, and timer
+---
+
+The Test component renders the main typing interface, displaying words to type, tracking the user's position with an animated caret, and showing the remaining time.
+
+## Import
+
+```typescript
+import Test from "components/Test";
+```
+
+## Usage
+
+```tsx
+import Test from "components/Test";
+
+function App() {
+  return (
+    <div>
+      <Test />
+    </div>
+  );
+}
+```
+
+The Test component takes no props and manages its display through Redux state.
+
+## Redux state
+
+The component accesses the following Redux state:
+
+<ParamField path="word.typedWord" type="string">
+  The current word being typed by the user
+</ParamField>
+
+<ParamField path="word.currWord" type="string">
+  The target word that should be typed
+</ParamField>
+
+<ParamField path="word.wordList" type="string[]">
+  Array of all words to be typed in the test
+</ParamField>
+
+<ParamField path="word.typedHistory" type="string[]">
+  Array of previously typed words
+</ParamField>
+
+<ParamField path="time.timer" type="number">
+  Remaining time in seconds
+</ParamField>
+
+## Refs
+
+The component creates and dispatches refs to Redux for external access:
+
+<ParamField path="activeWord" type="RefObject<HTMLDivElement>">
+  Reference to the currently active word element for scroll tracking
+</ParamField>
+
+<ParamField path="caretRef" type="RefObject<HTMLSpanElement>">
+  Reference to the caret element for position updates
+</ParamField>
+
+## Redux actions
+
+- `setRef(ref)` - Store activeWord ref in Redux
+- `setCaretRef(ref)` - Store caretRef in Redux
+
+## Rendering logic
+
+### Word display
+
+Each word in the word list is rendered with:
+
+```tsx
+<div className="word" ref={isActive ? activeWord : null}>
+  {/* Word characters */}
+</div>
+```
+
+### Caret positioning
+
+The caret is rendered only on the active word:
+
+```tsx
+<span
+  ref={caretRef}
+  id="caret"
+  className="blink"
+  style={{ left: typedWord.length * 14.5833 }}
+>
+  |
+</span>
+```
+
+The caret position is calculated as `typedWord.length * 14.5833` pixels, where 14.5833 is the character width.
+
+### Extra letters
+
+When the user types more characters than the target word contains:
+
+```tsx
+{extraLetters.map((char, charId) => (
+  <span key={char + charId} className="wrong extra">
+    {char}
+  </span>
+))}
+```
+
+These extra characters are marked with `wrong` and `extra` classes.
+
+### Character states
+
+Each character can have different states:
+- Default (unmarked) - Not yet typed
+- Correct - Matches the target word
+- Wrong - Doesn't match (styled differently)
+- Extra - Typed beyond word length (styled as wrong)
+
+## Layout structure
+
+```tsx
+<div className="test">
+  <div className="timer">{timer}</div>
+  <div className="box">
+    {/* Word elements */}
+  </div>
+</div>
+```
+
+## Example
+
+```tsx
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import Test from "components/Test";
+import { startTimer } from "store/actions";
+
+function TypingTest() {
+  const dispatch = useDispatch();
+  
+  useEffect(() => {
+    // Start test on first keypress
+    const handleKeyPress = () => {
+      dispatch(startTimer());
+    };
+    
+    document.addEventListener("keydown", handleKeyPress, { once: true });
+    return () => document.removeEventListener("keydown", handleKeyPress);
+  }, [dispatch]);
+  
+  return <Test />;
+}
+```
+
+## Styling
+
+The component uses `stylesheets/Test.scss` for:
+- Word grid layout
+- Caret animation (blink effect)
+- Character highlighting (correct/wrong/extra)
+- Timer display
+
+## Related
+
+- [Header component](./header) - Configure test parameters
+- [Result component](./result) - View test results

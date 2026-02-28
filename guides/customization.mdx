@@ -1,0 +1,220 @@
+---
+title: Customization guide
+description: Learn how to add custom themes and wordlists to personalize your typing test experience
+---
+
+## Overview
+
+The typing test application supports custom themes and wordlists, allowing you to personalize your testing experience. This guide will walk you through adding your own themes and wordlists to the application.
+
+## Adding custom themes
+
+Themes in the typing test use CSS custom properties to define four color values that control the entire appearance of the application.
+
+<Steps>
+  <Step title="Create theme in themes.scss">
+    Add your theme colors to `src/stylesheets/themes.scss` using the following format:
+
+    ```scss themes.scss
+    .your-theme-name {
+        --bg-color: #background-color;
+        --font-color: #font-color;
+        --hl-color: #highlight-color;
+        --fg-color: #foreground-color;
+    }
+    ```
+
+    <Note>
+      Use hex codes for colors to ensure consistent rendering across browsers.
+    </Note>
+  </Step>
+
+  <Step title="Register theme in Header.tsx">
+    Add your theme name to the options object in `src/components/Header.tsx`:
+
+    ```tsx Header.tsx
+    export const options: Options = {
+        time: [15, 30, 45, 60, 120],
+        theme: [
+            "default",
+            "mkbhd",
+            "mocha",
+            "coral",
+            "ocean",
+            "azure",
+            "forest",
+            "rose-milk",
+            "your-theme-name" // Add your theme here
+        ],
+        type: ["words", "sentences"],
+    };
+    ```
+
+    <Warning>
+      The theme name in `themes.scss` and `Header.tsx` must match exactly, including capitalization and hyphens.
+    </Warning>
+  </Step>
+</Steps>
+
+### Theme color properties
+
+Each theme requires four CSS custom properties:
+
+<Accordion title="--bg-color (Background color)">
+  The main background color of the application. This covers the entire page background.
+
+  **Example:** `--bg-color: #1e1e1e;`
+</Accordion>
+
+<Accordion title="--font-color (Font color)">
+  The color for untyped text. This is the default text color that appears before you start typing.
+
+  **Example:** `--font-color: #d4d4d4;`
+</Accordion>
+
+<Accordion title="--hl-color (Highlight color)">
+  Used for interactive elements including:
+  - The typing caret
+  - Wrong/incorrect characters
+  - Timer display
+  - Hover states
+  - Selected options
+
+  **Example:** `--hl-color: #ce9178;`
+</Accordion>
+
+<Accordion title="--fg-color (Foreground color)">
+  The color for correctly typed characters. This provides visual feedback for accurate typing.
+
+  **Example:** `--fg-color: #474747;`
+</Accordion>
+
+### Real theme examples
+
+Here are some built-in themes you can use as inspiration:
+
+<CodeGroup>
+```scss Default theme
+.default {
+    --bg-color: black;
+    --font-color: lightslategray;
+    --hl-color: orange;
+    --fg-color: #292f34;
+}
+```
+
+```scss VS Code theme
+.vscode {
+    --bg-color: #1e1e1e;
+    --font-color: #d4d4d4;
+    --hl-color: #ce9178;
+    --fg-color: #474747;
+}
+```
+
+```scss Terminal theme
+.terminal {
+    --bg-color: #000000;
+    --font-color: #ffffff;
+    --hl-color: #ff0000;
+    --fg-color: #00ff00;
+}
+```
+
+```scss Mocha theme
+.mocha {
+    --bg-color: #2d2424;
+    --font-color: #e0c097;
+    --hl-color: #dc521c;
+    --fg-color: #5c3d2e;
+}
+```
+</CodeGroup>
+
+## Adding custom wordlists
+
+Wordlists define the words or sentences that appear during the typing test. You can add custom wordlists for specific topics, languages, or practice scenarios.
+
+<Steps>
+  <Step title="Create JSON wordlist file">
+    Create a new JSON file named `your-wordlist-name.json` in the `src/wordlists/` directory.
+
+    The file must contain a single array of strings:
+
+    ```json your-wordlist-name.json
+    [
+        "word1",
+        "word2",
+        "word3",
+        "sentence one",
+        "sentence two"
+    ]
+    ```
+
+    <Warning>
+      The JSON file must contain only a single array. No objects, nested arrays, or additional properties are supported.
+    </Warning>
+  </Step>
+
+  <Step title="Register wordlist in Header.tsx">
+    Add your wordlist name to the `type` array in the options object:
+
+    ```tsx Header.tsx
+    export const options: Options = {
+        time: [15, 30, 45, 60, 120],
+        theme: ["default", "mkbhd", "mocha"],
+        type: [
+            "words",
+            "hard-words",
+            "sentences",
+            "numbers",
+            "got",
+            "javascript",
+            "python",
+            "your-wordlist-name" // Add your wordlist here
+        ],
+    };
+    ```
+
+    <Note>
+      The wordlist name in `Header.tsx` must exactly match your JSON filename (without the `.json` extension).
+    </Note>
+  </Step>
+</Steps>
+
+### Wordlist best practices
+
+<CardGroup cols={2}>
+  <Card title="Word length" icon="ruler">
+    Keep words between 3-12 characters for optimal typing practice and readability.
+  </Card>
+  
+  <Card title="List size" icon="list">
+    Include at least 200-500 unique words to prevent repetition during longer tests.
+  </Card>
+  
+  <Card title="Difficulty" icon="chart-line">
+    Group words by difficulty level. Consider creating separate wordlists for beginner, intermediate, and advanced users.
+  </Card>
+  
+  <Card title="Theme" icon="tag">
+    Focus on specific themes (programming languages, literature quotes, technical terms) for targeted practice.
+  </Card>
+</CardGroup>
+
+## Testing your customizations
+
+After adding themes or wordlists:
+
+1. Restart the development server
+2. Refresh your browser
+3. Open the options menu to verify your additions appear
+4. Test the theme/wordlist to ensure it works correctly
+
+<Note>
+  The application stores your last selected theme, time, and wordlist in localStorage. Clear your browser's localStorage if your changes don't appear.
+</Note>
+
+## Contributing your customizations
+
+Want to share your themes and wordlists with the community? Follow the [contributing guide](/guides/contributing) to submit a pull request with your additions.

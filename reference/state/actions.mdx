@@ -1,0 +1,234 @@
+---
+title: Actions
+description: Complete list of Redux action constants and action creators for state management
+---
+
+## Action constants
+
+All action type constants used throughout the application:
+
+```typescript
+export const SET_WORD = "SETWORD";
+export const SET_CHAR = "SETCHAR";
+export const TIMER_DECREMENT = "TIMERDECREMENT";
+export const APPEND_TYPED_HISTORY = "APPENDTYPEDHISTORY";
+export const TIMER_SET = "TIMERSET";
+export const TIMERID_SET = "TIMERIDSET";
+export const PREV_WORD = "PREVWORD";
+export const SET_WORDLIST = "SETWORDLIST";
+export const SET_THEME = "SETTHEME";
+export const SET_TIME = "SETTIME";
+export const SET_REF = "SETREF";
+export const SET_CARET_REF = "SETCARETREF";
+export const SET_TYPE = "SETTYPE";
+```
+
+Source: `src/store/actions.ts:3-15`
+
+## Time actions
+
+Actions for managing the test timer:
+
+### timerDecrement
+
+Decrements the timer by one second.
+
+```typescript
+export const timerDecrement = () => ({ type: TIMER_DECREMENT });
+```
+
+Source: `src/store/actions.ts:18`
+
+### timerSet
+
+Sets the timer to a specific value.
+
+```typescript
+export const timerSet = (payload: number) => ({ type: TIMER_SET, payload });
+```
+
+Source: `src/store/actions.ts:19`
+
+**Parameters:**
+- `payload` - Timer value in seconds
+
+### setTimerId
+
+Stores the reference to the active timer interval.
+
+```typescript
+export const setTimerId = (payload: NodeJS.Timer | null) => ({
+    type: TIMERID_SET,
+    payload,
+});
+```
+
+Source: `src/store/actions.ts:20-23`
+
+**Parameters:**
+- `payload` - Timer interval reference or null
+
+## Word actions
+
+Actions for managing words and typing progress:
+
+### setWord
+
+Sets a word in the typed history.
+
+```typescript
+export const setWord = (payload: string) => ({ type: SET_WORD, payload });
+```
+
+Source: `src/store/actions.ts:26`
+
+**Parameters:**
+- `payload` - The word to add to history
+
+### setChar
+
+Updates the currently typed character(s).
+
+```typescript
+export const setChar = (payload: string) => ({ type: SET_CHAR, payload });
+```
+
+Source: `src/store/actions.ts:27`
+
+**Parameters:**
+- `payload` - Current typed text
+
+### setTypedWord
+
+Alias for `setChar` - updates the currently typed word.
+
+```typescript
+export const setTypedWord = (payload: string) => ({ type: SET_CHAR, payload });
+```
+
+Source: `src/store/actions.ts:28`
+
+**Parameters:**
+- `payload` - Current typed text
+
+### appendTypedHistory
+
+Moves to the next word, adding current typed word to history.
+
+```typescript
+export const appendTypedHistory = () => ({
+    type: APPEND_TYPED_HISTORY,
+});
+```
+
+Source: `src/store/actions.ts:29-31`
+
+### backtrackWord
+
+Returns to the previous word.
+
+```typescript
+export const backtrackWord = (payload: boolean) => ({
+    type: PREV_WORD,
+    payload,
+});
+```
+
+Source: `src/store/actions.ts:32-35`
+
+**Parameters:**
+- `payload` - Whether to clear the typed word when backtracking
+
+### setWordList
+
+Initializes the word list for the test.
+
+```typescript
+export const setWordList = (payload: string[]) => ({
+    type: SET_WORDLIST,
+    payload,
+});
+```
+
+Source: `src/store/actions.ts:36-39`
+
+**Parameters:**
+- `payload` - Array of words for the typing test
+
+### setRef
+
+Stores a ref to the active word element.
+
+```typescript
+export const setRef = (payload: RefObject<HTMLDivElement>) => ({
+    type: SET_REF,
+    payload,
+});
+```
+
+Source: `src/store/actions.ts:40-43`
+
+**Parameters:**
+- `payload` - React ref to the active word div
+
+### setCaretRef
+
+Stores a ref to the caret element.
+
+```typescript
+export const setCaretRef = (payload: RefObject<HTMLSpanElement>) => ({
+    type: SET_CARET_REF,
+    payload,
+});
+```
+
+Source: `src/store/actions.ts:44-47`
+
+**Parameters:**
+- `payload` - React ref to the caret span
+
+## Preference actions
+
+Actions for managing user preferences:
+
+### setTheme
+
+Updates the selected theme.
+
+```typescript
+export const setTheme = (payload: string) => ({ type: SET_THEME, payload });
+```
+
+Source: `src/store/actions.ts:50`
+
+**Parameters:**
+- `payload` - Theme identifier
+
+### setTime
+
+Sets the test time limit.
+
+```typescript
+export const setTime = (payload: number) => ({ type: SET_TIME, payload });
+```
+
+Source: `src/store/actions.ts:51`
+
+**Parameters:**
+- `payload` - Time limit in seconds
+
+### setType
+
+Sets the test type.
+
+```typescript
+export const setType = (payload: string) => ({
+    type: SET_TYPE,
+    payload,
+});
+```
+
+Source: `src/store/actions.ts:52-55`
+
+**Parameters:**
+- `payload` - Test type identifier

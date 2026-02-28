@@ -1,0 +1,146 @@
+---
+title: Typing test
+description: Learn how the typing test works with character tracking, timer system, and real-time feedback
+---
+
+The typing test component provides real-time feedback as you type, tracking your progress through a randomly shuffled wordlist with visual indicators for correct and incorrect characters.
+
+## How it works
+
+The test is built using React, Redux, and TypeScript, with the main logic in `Test.tsx` and helper functions managing timer and character recording.
+
+### Test initialization
+
+When the test loads:
+
+1. A wordlist is shuffled randomly from the selected word type
+2. The timer is set to the configured time limit (15s, 30s, or 60s)
+3. The first word becomes active and the caret is positioned at the start
+4. The test waits for the first keypress to begin
+
+<Note>
+The timer only starts when you type your first character. Press Tab at any time to restart the test.
+</Note>
+
+## Timer system
+
+The timer is implemented in `startTimer.ts` and begins countdown when you type the first character.
+
+```typescript
+export const startTimer = () => {
+    const { dispatch } = store;
+    const timerId = setInterval(() => {
+        dispatch(timerDecrement());
+    }, 1000);
+    dispatch(setTimerId(timerId));
+};
+```
+
+<Info>
+The timer decrements by 1 second every 1000ms using `setInterval`. When it reaches 0, the test ends and results are displayed.
+</Info>
+
+### Timer states
+
+<Tabs>
+  <Tab title="Before start">
+    Timer displays the configured time limit (e.g., 60). No interval is running yet.
+  </Tab>
+  <Tab title="Running">
+    Timer decrements every second. The `timerId` is stored in Redux state to allow stopping/restarting.
+  </Tab>
+  <Tab title="Complete">
+    Timer reaches 0 and the interval is cleared. Results component is displayed automatically.
+  </Tab>
+</Tabs>
+
+## Character tracking
+
+Every keystroke is recorded in `recordTest.ts` which handles different key types:
+
+### Key handling
+
+<CardGroup cols={2}>
+  <Card title="Regular characters" icon="keyboard">
+    Added to `typedWord` state and highlighted in real-time. Characters are compared against the current word to show correct/incorrect styling.
+  </Card>
+  <Card title="Space" icon="space-awesome">
+    Completes the current word, adds it to `typedHistory`, and advances to the next word. The word is marked as right or wrong.
+  </Card>
+  <Card title="Backspace" icon="delete-left">
+    Removes the last character. Ctrl+Backspace clears the entire word. Can also backtrack to previous words if current word is empty.
+  </Card>
+  <Card title="Tab" icon="rotate-right">
+    Resets the entire test at any time, clearing all history and restarting the timer.
+  </Card>
+</CardGroup>
+
+### Character state tracking
+
+The application tracks multiple states in Redux (`reducer.ts:19-37`):
+
+- `currWord` - The word currently being typed
+- `typedWord` - Characters typed for the current word
+- `typedHistory` - Array of all completed words
+- `wordList` - The shuffled list of all words in the test
+
+## Visual feedback
+
+### Caret positioning
+
+The caret is dynamically positioned based on the number of characters typed:
+
+```typescript
+<span
+    ref={caretRef}
+    id="caret"
+    className="blink"
+    style={{
+        left: typedWord.length * 14.5833,
+    }}>
+    |
+</span>
+```
+
+The caret moves 14.5833 pixels per character and blinks with a CSS animation. It temporarily stops blinking on each keystroke for visual feedback.
+
+### Extra characters
+
+When you type more characters than exist in the word, they are marked as "extra" errors:
+
+```typescript
+const extraLetters = typedWord.slice(currWord.length).split("");
+```
+
+These appear in red with the `wrong extra` CSS class applied (`Test.tsx:53`).
+
+### Word scrolling
+
+As you progress through the test, active words automatically scroll into view:
+
+```typescript
+currWordEl.scrollIntoView({ behavior: "smooth", block: "center" });
+```
+
+This ensures the current word is always visible in the center of the test area.
+
+## Test flow
+
+<Steps>
+  <Step title="Select preferences">
+    Choose your word type (words, sentences, code, etc.) and time limit (15s, 30s, 60s) from the header.
+  </Step>
+  <Step title="Start typing">
+    The timer begins automatically when you type the first character. No need to click or press a start button.
+  </Step>
+  <Step title="Type through wordlist">
+    Continue typing words, pressing space to advance. Backspace to correct errors. Tab to restart.
+  </Step>
+  <Step title="Timer expires">
+    When the timer reaches 0, the test automatically ends and your results are displayed.
+  </Step>
+</Steps>
+
+<Warning>
+You cannot proceed to the next word by pressing space if the current `typedWord` is empty. This prevents accidental skipping.
+</Warning>

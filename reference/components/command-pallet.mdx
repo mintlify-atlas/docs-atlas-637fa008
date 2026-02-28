@@ -1,0 +1,215 @@
+---
+title: CommandPallet
+description: Keyboard-driven command palette for quick access to test configuration options
+---
+
+The CommandPallet component provides a keyboard-driven interface for quickly changing test settings without using the mouse. It features fuzzy filtering, keyboard navigation, and two-step command selection.
+
+## Import
+
+```typescript
+import CommandPallet from "components/CommandPallet";
+```
+
+## Props
+
+<ParamField path="setShowPallet" type="Function" required>
+  Function to control the visibility of the command palette. Accepts a boolean or state updater function.
+  
+  ```typescript
+  setShowPallet: Function
+  ```
+</ParamField>
+
+## Usage
+
+```tsx
+import { useState } from "react";
+import CommandPallet from "components/CommandPallet";
+
+function App() {
+  const [showPallet, setShowPallet] = useState(false);
+  
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === "k") {
+        e.preventDefault();
+        setShowPallet(true);
+      }
+    };
+    
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+  
+  return (
+    <div>
+      {showPallet && <CommandPallet setShowPallet={setShowPallet} />}
+    </div>
+  );
+}
+```
+
+## Two-step selection
+
+The command palette uses a two-step selection process:
+
+1. **First step**: Select category (time, theme, or type)
+2. **Second step**: Select specific value from that category
+
+### State management
+
+<ParamField path="palletText" type="string">
+  Current search/filter text in the input field
+</ParamField>
+
+<ParamField path="selectedOption" type="string">
+  Currently selected category (empty string in first step)
+</ParamField>
+
+<ParamField path="highlightedOption" type="number">
+  Index of currently highlighted option in the list (for keyboard navigation)
+</ParamField>
+
+<ParamField path="commandList" type="string[]">
+  Filtered list of available commands based on current search text
+</ParamField>
+
+## Keyboard controls
+
+<ParamField path="ArrowUp" type="KeyboardEvent">
+  Move highlight up one option (minimum index: 0)
+</ParamField>
+
+<ParamField path="ArrowDown" type="KeyboardEvent">
+  Move highlight down one option (maximum: commandList.length - 1)
+</ParamField>
+
+<ParamField path="Enter" type="KeyboardEvent">
+  Select currently highlighted option
+</ParamField>
+
+<ParamField path="Escape" type="KeyboardEvent">
+  Close the command palette
+</ParamField>
+
+## Redux integration
+
+The component dispatches actions based on the selected category:
+
+```typescript
+switch (selectedOption) {
+  case "time":
+    dispatch(setTime(+command));
+    break;
+  case "theme":
+    dispatch(setTheme(command));
+    break;
+  case "type":
+    dispatch(setType(command));
+    break;
+}
+```
+
+## Available options
+
+The component uses the `options` object from the Header component:
+
+- **time**: `[15, 30, 45, 60, 120]`
+- **theme**: `["default", "mkbhd", "mocha", "coral", ...]`
+- **type**: `["words", "hard-words", "sentences", "numbers", ...]`
+
+## Filtering logic
+
+Commands are filtered using case-insensitive inclusion:
+
+```typescript
+if (!selectedOption) {
+  // First step: filter categories
+  setCommandList(
+    Object.keys(options).filter((option) =>
+      option.includes(palletText.toLowerCase())
+    )
+  );
+} else {
+  // Second step: filter values in selected category
+  const commands = options[selectedOption].map((o) => o.toString());
+  setCommandList(
+    commands.filter((option) =>
+      option.includes(palletText.toLowerCase())
+    )
+  );
+}
+```
+
+## Click handling
+
+The component manages click events carefully:
+
+- Clicking inside the palette: Event propagation stopped
+- Clicking outside: Closes the palette (via document click listener)
+
+```typescript
+useEffect(() => {
+  document.onclick = () => {
+    props.setShowPallet((s: boolean) => !s);
+  };
+  return () => {
+    document.onclick = null;
+  };
+}, [props]);
+```
+
+## Layout structure
+
+```tsx
+<div className={styles.commandPallet} onKeyDown={handlePalletKeys}>
+  <input
+    type="text"
+    className={styles.commandInput}
+    placeholder="Type to search"
+    value={palletText}
+    autoFocus
+  />
+  <div className={styles.commandList}>
+    {commandList.map((option, idx) => (
+      <div
+        className={`${styles.command} ${highlightedOption === idx && styles.highlighted}`}
+        onClick={() => handleCommandSelection(option)}
+      >
+        {option}
+      </div>
+    ))}
+  </div>
+</div>
+```
+
+## Styling
+
+The component uses CSS Modules:
+
+```typescript
+import styles from "stylesheets/CommandPallet.module.scss";
+```
+
+Classes:
+- `commandPallet` - Main container
+- `commandInput` - Search input field
+- `commandList` - List container
+- `command` - Individual command item
+- `highlighted` - Currently highlighted item
+
+## Example workflow
+
+1. User presses `Ctrl+K`
+2. Command palette opens with categories: `["time", "theme", "type"]`
+3. User types "th" → filters to `["theme"]`
+4. User presses Enter → selects "theme" category
+5. Command list updates to theme options: `["default", "mkbhd", ...]`
+6. User types "moc" → filters to `["mocha"]`
+7. User presses Enter → dispatches `setTheme("mocha")` and closes palette
+
+## Related
+
+- [Header component](./header) - Visual settings interface
+- [Footer component](./footer) - Shows keyboard shortcut hint
