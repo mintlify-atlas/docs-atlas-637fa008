@@ -7,13 +7,16 @@ The typing test application is built with React, Redux, and TypeScript, featurin
 
 ## Component structure
 
-The application consists of five main components:
+The application consists of six components:
 
+- **App** - Root component that orchestrates the entire application and handles global keyboard events
 - **Header** - Configuration interface for test parameters (time, theme, type)
 - **Test** - Main typing test interface with word display and caret tracking
 - **Result** - Test results display with WPM calculation and statistics
 - **CommandPallet** - Keyboard-driven command interface for quick settings access
 - **Footer** - Application footer with keyboard hints and contributor information
+
+The App component manages the conditional rendering of Test/Result components based on timer state and handles keyboard shortcuts including Ctrl+K for the command palette and Tab for resetting the test.
 
 ## State management
 
